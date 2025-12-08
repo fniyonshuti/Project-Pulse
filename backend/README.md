@@ -56,7 +56,7 @@ pip install -r requirements.txt
 
 ```bash
 # Start the development server
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload 
 ```
 
 The API will be available at:
@@ -181,7 +181,7 @@ You can test the API using:
 ### Port Already in Use
 If port 8000 is already in use:
 ```bash
-uvicorn main:app --reload --port 8001
+uvicorn app.main:app --reload 
 ```
 
 ### Import Errors
@@ -195,7 +195,7 @@ source venv/bin/activate  # or venv\Scripts\activate on Windows
 Delete the database file and restart:
 ```bash
 rm project_pulse.db
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 ## Deployment
