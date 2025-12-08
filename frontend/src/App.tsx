@@ -7,11 +7,15 @@ import { ProjectProvider } from './context/ProjectContext';
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
 
+  const handleNavigate = (page: Page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <ProjectProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
-        <Pages currentPage={currentPage} onNavigate={setCurrentPage} />
+        <Navigation currentPage={currentPage} onNavigate={handleNavigate} />
+        <Pages currentPage={currentPage} onNavigate={handleNavigate} />
       </div>
     </ProjectProvider>
   );
