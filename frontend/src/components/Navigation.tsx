@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Menu, X, Zap } from 'lucide-react';
 
-type Page = 'home' | 'features' | 'dashboard';
+import Modal from './Modal';
+import LoginForm from './LoginForm';
+import SignupForm from './SignupForm';
+
+type Page = 'home' | 'features' | 'dashboard' | 'login' | 'signup';
 
 interface NavigationProps {
   currentPage: Page;
@@ -10,6 +14,7 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [modalType, setModalType] = useState<'login' | 'signup' | null>(null);
 
   const navItems: { label: string; page: Page }[] = [
     { label: 'Home', page: 'home' },
@@ -26,6 +31,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate 
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+
           {/* Logo */}
           <div
             className="flex items-center gap-2 cursor-pointer"
@@ -38,7 +44,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate 
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex gap-8">
+          <div className="hidden md:flex items-center gap-8">
             {navItems.map(({ label, page }) => (
               <button
                 key={page}
@@ -52,6 +58,21 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate 
                 {label}
               </button>
             ))}
+
+            {/* Login & Signup Buttons */}
+            <button
+              onClick={() => setModalType('login')}
+              className="text-gray-600 hover:text-gray-900 font-medium"
+            >
+              Login
+            </button>
+
+            <button
+              onClick={() => setModalType('signup')}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Sign Up
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -75,9 +96,42 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate 
                 {label}
               </button>
             ))}
+
+            {/* Mobile Login & Signup */}
+            <button
+              onClick={() => setModalType('login')}
+              className="text-left py-2 px-3 rounded hover:bg-gray-100 font-medium"
+            >
+              Login
+            </button>
+
+            <button
+              onClick={() => setModalType('signup')}
+              className="text-left py-2 px-3 rounded bg-blue-600 text-white hover:bg-blue-700 font-medium rounded-lg"
+            >
+              Sign Up
+            </button>
           </div>
         )}
       </div>
+
+      {/* Login Modal */}
+      <Modal
+        isOpen={modalType === 'login'}
+        onClose={() => setModalType(null)}
+        title="Login"
+      >
+        <LoginForm />
+      </Modal>
+
+      {/* Signup Modal */}
+      <Modal
+        isOpen={modalType === 'signup'}
+        onClose={() => setModalType(null)}
+        title="Create Account"
+      >
+        <SignupForm />
+      </Modal>
     </nav>
   );
 };
