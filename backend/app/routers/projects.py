@@ -1,11 +1,14 @@
+# from backend.app.auth import my_middleware
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from app.database import get_db
-from app.schemas import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectStats
-from app import crud
-
-router = APIRouter()
+from app.db.database import get_db
+from app.schemas.schemas import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectStats
+from app.controllers import crud
+# from app.auth import my_middleware  
+router = APIRouter(
+    # dependencies=[Depends(my_middleware)]   
+)
 
 @router.get("/", response_model=List[ProjectResponse])
 def get_all_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -65,7 +68,7 @@ def update_project_status(
     """
     Update only the status of a project
     """
-    from app.models import ProjectStatus
+    from app.models.project import ProjectStatus
     
     try:
         project_status = ProjectStatus(status)
