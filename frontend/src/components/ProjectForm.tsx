@@ -8,6 +8,7 @@ interface ProjectFormProps {
   onCancel: () => void;
   onChange: (field: keyof FormData, value: string) => void;
   isLoading?: boolean;
+  isEdit?: boolean;
 }
 
 export const ProjectForm: React.FC<ProjectFormProps> = ({
@@ -17,6 +18,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   onCancel,
   onChange,
   isLoading = false,
+  isEdit = false,
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,8 +26,10 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mb-8 border-l-4 border-blue-600">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Create New Project</h2>
+    <form onSubmit={handleSubmit} className={`bg-white p-6 rounded-lg shadow-md border-l-4 ${isEdit ? 'border-yellow-500 mb-4' : 'border-blue-600 mb-8'}`}>
+      <h2 className="text-xl font-bold text-gray-900 mb-4">
+        {isEdit ? '✏️ Edit Project' : '➕ Create New Project'}
+      </h2>
       
       <div className="space-y-4">
         {/* Project Name */}
@@ -85,9 +89,9 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-lg transition"
+            className={`${isEdit ? 'bg-yellow-600 hover:bg-yellow-700 disabled:bg-yellow-400' : 'bg-green-600 hover:bg-green-700 disabled:bg-green-400'} disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-lg transition`}
           >
-            {isLoading ? 'Creating...' : 'Create Project'}
+            {isLoading ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update Project' : 'Create Project')}
           </button>
           <button
             type="button"

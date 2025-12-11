@@ -1,7 +1,21 @@
 import type { Project, FormData } from '../types/index';
 
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
+// Helper function to get auth headers
+const getAuthHeaders = (): HeadersInit => {
+  const token = localStorage.getItem('token');
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
+};
 
 /**
  * GET /api/projects/
@@ -9,7 +23,9 @@ const API_URL = import.meta.env.VITE_API_URL;
  */
 export const fetchProjects = async (): Promise<Project[]> => {
   try {
-    const response = await fetch(`${API_URL}/projects/`);
+    const response = await fetch(`${API_URL}/projects/`, {
+      headers: getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch projects');
     return await response.json();
   } catch (error) {
@@ -28,12 +44,13 @@ export const createProject = async (
   try {
     const response = await fetch(`${API_URL}/projects/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(projectData),
     });
-    if (!response.ok) throw new Error('Failed to create project');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to create project');
+    }
     return await response.json();
   } catch (error) {
     console.error('Error creating project:', error);
@@ -47,7 +64,9 @@ export const createProject = async (
  */
 export const getProjectStats = async () => {
   try {
-    const response = await fetch(`${API_URL}/projects/stats`);
+    const response = await fetch(`${API_URL}/projects/stats`, {
+      headers: getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch stats');
     return await response.json();
   } catch (error) {
@@ -62,7 +81,9 @@ export const getProjectStats = async () => {
  */
 export const getProject = async (projectId: string): Promise<Project> => {
   try {
-    const response = await fetch(`${API_URL}/projects/${projectId}`);
+    const response = await fetch(`${API_URL}/projects/${projectId}`, {
+      headers: getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch project');
     return await response.json();
   } catch (error) {
@@ -82,12 +103,13 @@ export const updateProject = async (
   try {
     const response = await fetch(`${API_URL}/projects/${projectId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(projectData),
     });
-    if (!response.ok) throw new Error('Failed to update project');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to update project');
+    }
     return await response.json();
   } catch (error) {
     console.error('Error updating project:', error);
@@ -103,8 +125,12 @@ export const deleteProject = async (projectId: string): Promise<void> => {
   try {
     const response = await fetch(`${API_URL}/projects/${projectId}`, {
       method: 'DELETE',
+      headers: getAuthHeaders(),
     });
-    if (!response.ok) throw new Error('Failed to delete project');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to delete project');
+    }
   } catch (error) {
     console.error('Error deleting project:', error);
     throw error;
@@ -120,14 +146,14 @@ export const updateProjectStatus = async (
   status: Project['status']
 ): Promise<Project> => {
   try {
-    const response = await fetch(`${API_URL}/projects/${projectId}/status`, {
+    const response = await fetch(`${API_URL}/projects/${projectId}/status?status=${encodeURIComponent(status)}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ status }),
+      headers: getAuthHeaders(),
     });
-    if (!response.ok) throw new Error('Failed to update project status');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to update project status');
+    }
     return await response.json();
   } catch (error) {
     console.error('Error updating project status:', error);

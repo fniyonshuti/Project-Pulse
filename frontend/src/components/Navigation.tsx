@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, Zap } from 'lucide-react';
-
-import Modal from './Modal';
-import LoginForm from './LoginForm';
-import SignupForm from './SignupForm';
-
-type Page = 'home' | 'features' | 'dashboard' | 'login' | 'signup';
+import type { Page } from '../pages';
 
 interface NavigationProps {
   currentPage: Page;
@@ -14,12 +9,13 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [modalType, setModalType] = useState<'login' | 'signup' | null>(null);
 
   const navItems: { label: string; page: Page }[] = [
     { label: 'Home', page: 'home' },
     { label: 'Features', page: 'features' },
     { label: 'Dashboard', page: 'dashboard' },
+    { label: 'Login', page: 'login' },
+    { label: 'Sign Up', page: 'signup' },
   ];
 
   const handleNavClick = (page: Page) => {
@@ -44,32 +40,46 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate 
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map(({ label, page }) => (
-              <button
-                key={page}
-                onClick={() => handleNavClick(page)}
-                className={`font-medium transition ${
-                  currentPage === page
-                    ? 'text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-
-            {/* Login & Signup Buttons */}
+          <div className="hidden md:flex items-center gap-6">
+            {navItems
+              .filter(({ page }) => page !== 'login' && page !== 'signup')
+              .map(({ label, page }) => (
+                <button
+                  key={page}
+                  onClick={() => handleNavClick(page)}
+                  className={`font-medium transition-all duration-200 ease-in-out ${
+                    currentPage === page
+                      ? 'text-blue-600 relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-600 after:animate-slide-in'
+                      : 'text-gray-600 hover:text-gray-900 hover:scale-105'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            
+            {/* Login Button */}
             <button
-              onClick={() => setModalType('login')}
-              className="text-gray-600 hover:text-gray-900 font-medium"
+              onClick={() => handleNavClick('login')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ease-in-out transform
+                ${
+                  currentPage === 'login'
+                    ? 'bg-blue-600 text-white shadow-md scale-105'
+                    : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:scale-105 active:scale-95'
+                }`}
             >
               Login
             </button>
 
+            {/* Sign Up Button */}
             <button
-              onClick={() => setModalType('signup')}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              onClick={() => handleNavClick('signup')}
+              className={`px-5 py-2 rounded-lg font-semibold text-white transition-all duration-300 ease-in-out transform
+                shadow-md hover:shadow-lg
+                ${
+                  currentPage === 'signup'
+                    ? 'bg-gradient-to-r from-green-600 to-green-700 scale-105'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50'
+                }`}
             >
               Sign Up
             </button>
@@ -86,52 +96,49 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate 
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4 flex flex-col gap-3">
-            {navItems.map(({ label, page }) => (
-              <button
-                key={page}
-                onClick={() => handleNavClick(page)}
-                className="text-left py-2 px-3 rounded hover:bg-gray-100 font-medium"
-              >
-                {label}
-              </button>
-            ))}
-
-            {/* Mobile Login & Signup */}
+          <div className="md:hidden pb-4 flex flex-col gap-3 animate-fade-in">
+            {navItems
+              .filter(({ page }) => page !== 'login' && page !== 'signup')
+              .map(({ label, page }) => (
+                <button
+                  key={page}
+                  onClick={() => handleNavClick(page)}
+                  className={`text-left py-2 px-3 rounded-lg font-medium transition-all duration-200 ease-in-out
+                    ${
+                      currentPage === page
+                        ? 'bg-blue-50 text-blue-600 font-semibold'
+                        : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                >
+                  {label}
+                </button>
+              ))}
+            
+            {/* Mobile Login Button */}
             <button
-              onClick={() => setModalType('login')}
-              className="text-left py-2 px-3 rounded hover:bg-gray-100 font-medium"
+              onClick={() => handleNavClick('login')}
+              className={`text-left py-2.5 px-3 rounded-lg font-semibold transition-all duration-200 ease-in-out
+                ${
+                  currentPage === 'login'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                }`}
             >
               Login
             </button>
 
+            {/* Mobile Sign Up Button */}
             <button
-              onClick={() => setModalType('signup')}
-              className="text-left py-2 px-3 rounded bg-blue-600 text-white hover:bg-blue-700 font-medium rounded-lg"
+              onClick={() => handleNavClick('signup')}
+              className="text-left py-2.5 px-3 rounded-lg font-semibold text-white 
+                         bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800
+                         transition-all duration-200 ease-in-out shadow-md"
             >
               Sign Up
             </button>
           </div>
         )}
       </div>
-
-      {/* Login Modal */}
-      <Modal
-        isOpen={modalType === 'login'}
-        onClose={() => setModalType(null)}
-        title="Login"
-      >
-        <LoginForm />
-      </Modal>
-
-      {/* Signup Modal */}
-      <Modal
-        isOpen={modalType === 'signup'}
-        onClose={() => setModalType(null)}
-        title="Create Account"
-      >
-        <SignupForm />
-      </Modal>
     </nav>
   );
 };

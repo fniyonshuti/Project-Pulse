@@ -6,9 +6,10 @@ interface ProjectCardProps {
   project: Project;
   onStatusChange: (status: ProjectStatus) => void;
   onDelete: () => void;
+  canEdit?: boolean;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onStatusChange, onDelete }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onStatusChange, onDelete, canEdit = false }) => {
   const getStatusColor = (status: ProjectStatus) => {
     switch (status) {
       case 'Completed':
@@ -34,23 +35,30 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onStatusChang
           {project.status}
         </span>
 
-        <div className="flex items-center gap-2">
-          <select
-            value={project.status}
-            onChange={(e) => onStatusChange(e.target.value as ProjectStatus)}
-            className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="Not Started">Not Started</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-          <button
-            onClick={onDelete}
-            className="text-red-600 hover:text-red-800 transition"
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
-        </div>
+        {canEdit ? (
+          <div className="flex items-center gap-2">
+            <select
+              value={project.status}
+              onChange={(e) => onStatusChange(e.target.value as ProjectStatus)}
+              className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+            <button
+              onClick={onDelete}
+              className="text-red-600 hover:text-red-800 transition"
+              title="Delete project"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          </div>
+        ) : (
+          <div className="text-xs text-gray-500 italic">
+            View only
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import engine, Base
 from app.routers import projects
 from app.routers import users
+from app.routers import contact
+# Import models to ensure tables are created
+from app.models.project import Project
+from app.models.user import User
+from app.models.contact import Contact
 # from app.Middleware.auth import AuthMiddleware
 # from fastapi.security import OAuth2PasswordBearer
 
@@ -31,6 +36,7 @@ app.add_middleware(
 # Include routers
 app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
+app.include_router(contact.router, prefix="/api/contact", tags=["contact"])
 
 @app.get("/")
 def read_root():

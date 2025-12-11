@@ -1,8 +1,10 @@
 // SignupForm.jsx
 import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
-const SignupForm = () => {
-  const APIurl = import.meta.env.VITE_API_URL;
+const SignupForm = ({ onSuccess }) => {
+  const APIurl = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+  const { login } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,9 +33,40 @@ const SignupForm = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.message || "Signup failed");
+        setError(result.detail || result.message || "Signup failed");
       } else {
-        setSuccess("Account created successfully!");
+        setSuccess("Account created successfully! Logging you in...");
+        
+        // Automatically log in the user after successful signup
+        try {
+          const loginResponse = await fetch(`${APIurl}/users/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: data.email,
+              password: data.password,
+            }),
+          });
+
+          const loginData = await loginResponse.json();
+
+          if (loginResponse.ok && loginData.access_token && loginData.user) {
+            // Store token and user info using AuthContext
+            login(loginData.access_token, loginData.user);
+            
+            // Call success callback to navigate to dashboard
+            if (typeof onSuccess === "function") {
+              onSuccess();
+            }
+          } else {
+            // If auto-login fails, show success but ask user to login manually
+            setSuccess("Account created successfully! Please log in to continue.");
+          }
+        } catch (loginErr) {
+          console.error("Auto-login error:", loginErr);
+          setSuccess("Account created successfully! Please log in to continue.");
+        }
+        
         e.target.reset();
       }
     } catch (err) {
@@ -110,18 +143,55 @@ const SignupForm = () => {
       </div>
 
       {/* Error / Success Messages */}
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      {success && <p className="text-green-500 text-sm">{success}</p>}
+      {error && (
+        <div className="animate-fade-in">
+          <p className="text-red-500 text-sm font-medium">{error}</p>
+        </div>
+      )}
+      {success && (
+        <div className="animate-fade-in">
+          <p className="text-green-500 text-sm font-medium">{success}</p>
+        </div>
+      )}
 
       {/* Submit */}
       <button
         type="submit"
         disabled={loading}
-        className={`w-full py-2.5 rounded-lg font-medium text-white transition ${
-          loading ? "bg-gray-500 cursor-not-allowed" : "bg-green-600 hover:bg-green-700 active:bg-green-800"
-        }`}
+        className={`w-full py-3 px-4 rounded-lg font-semibold text-white 
+                   transition-all duration-300 ease-in-out transform
+                   shadow-lg hover:shadow-xl
+                   ${
+                     loading
+                       ? "bg-gray-400 cursor-not-allowed opacity-70"
+                       : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 active:scale-95 hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-green-300 focus:ring-opacity-50"
+                   }`}
       >
-        {loading ? "Creating..." : "Create Account"}
+        <span className="flex items-center justify-center gap-2">
+          {loading && (
+            <svg
+              className="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          )}
+          {loading ? "Creating..." : "Create Account"}
+        </span>
       </button>
     </form>
   );
