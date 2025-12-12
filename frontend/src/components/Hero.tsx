@@ -147,7 +147,7 @@ export const Hero: React.FC<HeroProps> = ({ onCTAClick }) => {
               <p className="text-red-300 mb-6">{error}</p>
             ) : (
               <p className="text-lg font-semibold text-blue-100 mb-6 drop-shadow">
-                📊 Total Projects:{" "}
+                 Total Projects:{" "}
                 <span className="font-bold text-white">{projects.length}</span>
               </p>
             )}
