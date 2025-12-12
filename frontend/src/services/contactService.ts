@@ -1,9 +1,4 @@
-/**
- * Contact Service
- * Handles all contact form API interactions
- */
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export interface ContactFormData {
   name: string;
@@ -20,66 +15,57 @@ export interface ContactResponse {
 }
 
 /**
- * POST /api/contact/submit
- * Submit a contact form message
+ * POST /api/contact/
+ * Submit a contact form
  */
-export const submitContact = async (
-  contactData: ContactFormData
-): Promise<ContactResponse> => {
+export const submitContact = async (contactData: ContactFormData): Promise<ContactResponse> => {
   try {
-    const response = await fetch(`${API_URL}/contact/submit`, {
-      method: "POST",
+    const response = await fetch(`${API_URL}/contact/`, {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(contactData),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || "Failed to submit contact form");
+      let errorMessage = 'Failed to submit contact form';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.detail || errorData.message || errorMessage;
+      } catch {
+        // If response is not JSON, use default message
+      }
+      throw new Error(errorMessage);
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error submitting contact form:", error);
+    console.error('Error submitting contact:', error);
     throw error;
   }
 };
 
 /**
  * GET /api/contact/
- * Get all contact submissions (for admin)
+ * Get contact submissions with pagination
  */
-export const getContacts = async (
-  skip: number = 0,
-  limit: number = 100
-): Promise<ContactResponse[]> => {
+export const getContacts = async (offset: number = 0, limit: number = 10): Promise<ContactResponse[]> => {
   try {
-    const response = await fetch(
-      `${API_URL}/contact/?skip=${skip}&limit=${limit}`
-    );
-    if (!response.ok) throw new Error("Failed to fetch contacts");
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching contacts:", error);
-    throw error;
-  }
-};
+    const response = await fetch(`${API_URL}/contact/?offset=${offset}&limit=${limit}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-/**
- * GET /api/contact/{contact_id}
- * Get a specific contact submission
- */
-export const getContact = async (
-  contactId: number
-): Promise<ContactResponse> => {
-  try {
-    const response = await fetch(`${API_URL}/contact/${contactId}`);
-    if (!response.ok) throw new Error("Failed to fetch contact");
+    if (!response.ok) {
+      throw new Error('Failed to fetch contacts');
+    }
+
     return await response.json();
   } catch (error) {
-    console.error("Error fetching contact:", error);
+    console.error('Error fetching contacts:', error);
     throw error;
   }
 };
