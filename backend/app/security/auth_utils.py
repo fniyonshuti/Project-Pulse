@@ -1,10 +1,14 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import jwt
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "YOUR_SECRET_KEY"
+SECRET_KEY = os.getenv("SECRET_KEY", "YOUR_SECRET_KEY_CHANGE_IN_PRODUCTION")
 ALGORITHM = "HS256"
 
 def hash_password(password: str):
@@ -20,6 +24,9 @@ def create_access_token(data: dict, expires_minutes=60):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def decode_access_token(token: str):
+    """
+    Decode and verify JWT token
+    """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload

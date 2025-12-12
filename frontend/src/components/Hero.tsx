@@ -36,7 +36,8 @@ export const Hero: React.FC<HeroProps> = ({ onCTAClick }) => {
 
     const fetchProjects = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/projects");
+        const APIurl = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+        const res = await fetch(`${APIurl}/projects`);
         if (!res.ok) throw new Error("Failed to fetch projects");
 
         const data = await res.json();

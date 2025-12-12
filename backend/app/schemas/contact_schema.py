@@ -1,12 +1,12 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 from typing import Optional
 
 
 class ContactCreate(BaseModel):
-    name: str = Field(..., min_length=1, max_length=200, description="Contact name")
-    email: EmailStr = Field(..., description="Contact email address")
-    message: str = Field(..., min_length=1, max_length=5000, description="Contact message")
+    name: str = Field(..., min_length=1, max_length=100, description="Contact name")
+    email: EmailStr = Field(..., description="Contact email")
+    message: str = Field(..., min_length=1, max_length=2000, description="Contact message")
 
 
 class ContactResponse(BaseModel):

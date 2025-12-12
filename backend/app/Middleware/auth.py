@@ -1,7 +1,7 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from app.security.auth_utils import create_access_token
+from app.security.auth_utils import decode_access_token
 
 PUBLIC_PATHS = [
     "/auth/login",

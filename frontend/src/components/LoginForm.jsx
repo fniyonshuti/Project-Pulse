@@ -25,7 +25,15 @@ const LoginForm = ({ onSuccess }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        // If response is not JSON, handle as text error
+        const textError = await response.text();
+        setError(`Server error: ${response.status} ${response.statusText}`);
+        return;
+      }
 
       if (!response.ok) {
         setError(data.detail || data.message || "Invalid email or password");
@@ -35,16 +43,22 @@ const LoginForm = ({ onSuccess }) => {
         // Store token and user info using AuthContext
         if (data.access_token && data.user) {
           login(data.access_token, data.user);
-        }
-
-        // Call success callback
-        if (typeof onSuccess === "function") {
-          onSuccess();
+          
+          // Call success callback after successful login
+          if (typeof onSuccess === "function") {
+            setTimeout(() => onSuccess(), 500); // Small delay for better UX
+          }
+        } else {
+          setError("Login response missing token or user data");
         }
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("An error occurred. Please try again.");
+      if (err instanceof TypeError && err.message.includes("fetch")) {
+        setError("Network error. Please check if the server is running.");
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

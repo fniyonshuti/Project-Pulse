@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+# from backend.app.auth import my_middleware
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List
 from app.db.database import get_db
 from app.schemas.schemas import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectStats
 from app.controllers import crud
-from app.dependencies.auth import require_admin
-
-router = APIRouter()
+# from app.auth import my_middleware  
+router = APIRouter(
+    # dependencies=[Depends(my_middleware)]   
+)
 
 @router.get("/", response_model=List[ProjectResponse])
 def get_all_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -38,25 +40,16 @@ def get_project(project_id: int, db: Session = Depends(get_db)):
     return project
 
 @router.post("/", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
-def create_project(
-    project: ProjectCreate, 
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
-):
+def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
     """
-    Create a new project (Admin only)
+    Create a new project
     """
     return crud.create_project(db, project)
 
 @router.put("/{project_id}", response_model=ProjectResponse)
-def update_project(
-    project_id: int, 
-    project: ProjectUpdate, 
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
-):
+def update_project(project_id: int, project: ProjectUpdate, db: Session = Depends(get_db)):
     """
-    Update an existing project (Admin only)
+    Update an existing project
     """
     updated_project = crud.update_project(db, project_id, project)
     if not updated_project:
@@ -69,12 +62,11 @@ def update_project(
 @router.patch("/{project_id}/status", response_model=ProjectResponse)
 def update_project_status(
     project_id: int, 
-    status: str, 
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    status: str = Query(..., description="New project status"),
+    db: Session = Depends(get_db)
 ):
     """
-    Update only the status of a project (Admin only)
+    Update only the status of a project
     """
     from app.models.project import ProjectStatus
     
@@ -97,13 +89,9 @@ def update_project_status(
     return updated_project
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_project(
-    project_id: int, 
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
-):
+def delete_project(project_id: int, db: Session = Depends(get_db)):
     """
-    Delete a project (Admin only)
+    Delete a project
     """
     success = crud.delete_project(db, project_id)
     if not success:

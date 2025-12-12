@@ -30,7 +30,14 @@ const SignupForm = ({ onSuccess }) => {
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
+      let result;
+      try {
+        result = await response.json();
+      } catch (jsonError) {
+        const textError = await response.text();
+        setError(`Server error: ${response.status} ${response.statusText}`);
+        return;
+      }
 
       if (!response.ok) {
         setError(result.detail || result.message || "Signup failed");
@@ -48,7 +55,14 @@ const SignupForm = ({ onSuccess }) => {
             }),
           });
 
-          const loginData = await loginResponse.json();
+          let loginData;
+          try {
+            loginData = await loginResponse.json();
+          } catch (loginJsonError) {
+            setSuccess("Account created successfully! Please log in to continue.");
+            e.target.reset();
+            return;
+          }
 
           if (loginResponse.ok && loginData.access_token && loginData.user) {
             // Store token and user info using AuthContext
@@ -56,7 +70,7 @@ const SignupForm = ({ onSuccess }) => {
             
             // Call success callback to navigate to dashboard
             if (typeof onSuccess === "function") {
-              onSuccess();
+              setTimeout(() => onSuccess(), 500); // Small delay for better UX
             }
           } else {
             // If auto-login fails, show success but ask user to login manually
@@ -64,14 +78,22 @@ const SignupForm = ({ onSuccess }) => {
           }
         } catch (loginErr) {
           console.error("Auto-login error:", loginErr);
-          setSuccess("Account created successfully! Please log in to continue.");
+          if (loginErr instanceof TypeError && loginErr.message.includes("fetch")) {
+            setSuccess("Account created successfully! Please log in to continue.");
+          } else {
+            setSuccess("Account created successfully! Please log in to continue.");
+          }
         }
         
         e.target.reset();
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
-      console.error(err);
+      console.error("Signup error:", err);
+      if (err instanceof TypeError && err.message.includes("fetch")) {
+        setError("Network error. Please check if the server is running.");
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
