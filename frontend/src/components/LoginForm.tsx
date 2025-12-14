@@ -1,8 +1,8 @@
 // LoginForm.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
-const LoginForm = ({ onSuccess }) => {
+const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const APIurl = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
   const { login } = useAuth();
 
@@ -12,7 +12,7 @@ const LoginForm = ({ onSuccess }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -30,7 +30,7 @@ const LoginForm = ({ onSuccess }) => {
         data = await response.json();
       } catch (jsonError) {
         // If response is not JSON, handle as text error
-        const textError = await response.text();
+        // const textError = await response.text();
         setError(`Server error: ${response.status} ${response.statusText}`);
         return;
       }

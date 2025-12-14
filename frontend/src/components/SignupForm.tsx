@@ -1,8 +1,8 @@
 // SignupForm.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
-const SignupForm = ({ onSuccess }) => {
+const SignupForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const APIurl = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
   const { login } = useAuth();
 
@@ -10,7 +10,7 @@ const SignupForm = ({ onSuccess }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleSignup = async (e) => {
+  const handleSignup = async (e :any) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -34,7 +34,7 @@ const SignupForm = ({ onSuccess }) => {
       try {
         result = await response.json();
       } catch (jsonError) {
-        const textError = await response.text();
+        // const textError = await response.text();
         setError(`Server error: ${response.status} ${response.statusText}`);
         return;
       }
