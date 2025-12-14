@@ -18,12 +18,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # 5. Install Python dependencies
 # Copy requirements first to leverage Docker cache
-COPY ./backend/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # 6. Copy the application code
-COPY ./backend .
+COPY . .
 
 # 7. Create a non-root user for security (Optional but recommended)
 RUN useradd -m appuser && chown -R appuser /backend
